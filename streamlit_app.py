@@ -1,6 +1,5 @@
 # Import python packages
 import streamlit as st
-from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
 
 # Write directly to the app
@@ -11,7 +10,8 @@ st.write(
 )
 
 #Loading the fruit options from the table
-session = get_active_session()
+cnx = st.connection("snowflake")
+session = cnx.session()
 my_df = session.table('SMOOTHIES.PUBLIC.FRUIT_OPTIONS').select(col('FRUIT_NAME'))
 
 #creating a text box for the name
