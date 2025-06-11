@@ -2,7 +2,7 @@
 import streamlit as st
 from snowflake.snowpark.functions import col
 import requests
-
+import pandas as pd
 
 # Write directly to the app
 st.title(f":cup_with_straw: Customize Your Smoothie :cup_with_straw:")
@@ -14,7 +14,14 @@ st.write(
 #Loading the fruit options from the table
 cnx = st.connection("snowflake")
 session = cnx.session()
-my_df = session.table('SMOOTHIES.PUBLIC.FRUIT_OPTIONS').select(col('FRUIT_NAME'))
+my_df = session.table('SMOOTHIES.PUBLIC.FRUIT_OPTIONS').select(col('FRUIT_NAME'), col('SEARCH_ON'))
+#st.dataframe(data = my_df, use_container_width = True)
+#st.stop()
+
+#Converting snowpark dataframe to pandas dataframe to use the loc function
+pd_df = my_df.to_pandas()
+#st.dataframe(pd_df)
+#st.stop()
 
 #creating a text box for the name
 name = st.text_input("Name on Smoothie:", placeholder = "John Doe")
@@ -28,6 +35,9 @@ if ingredients_list:
     ingredients_string = ''
     for fruit in ingredients_list:
         ingredients_string += fruit + ' '
+
+        search_on=pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]  
+        st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
       
         #Printing fruit nutrition information
         st.subheader(fruit + " nutrition information")
